@@ -2200,6 +2200,14 @@ static void bgp_process_main_one(struct bgp *bgp, struct bgp_node *rn,
 		FOREACH_AFI_SAFI (afi, safi) {
 			if (bgp_fibupd_safi(safi))
 				bgp_zebra_announce_table(bgp, afi, safi);
+				{
+					// TODO: make it a function
+					// TODO: utilize bgp_info *pi; instead of passing NULL?
+					struct prefix dummy_addr;
+					memset(&dummy_addr, 0, sizeof(dummy_addr));
+					dummy_addr.family = afi2family(afi);
+					bgp_zebra_announce(NULL, &dummy_addr, NULL, bgp, afi, safi);
+				}
 		}
 		bgp->main_peers_update_hold = 0;
 

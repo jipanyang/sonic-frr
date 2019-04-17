@@ -1224,6 +1224,7 @@ void bgp_zebra_announce(struct bgp_node *rn, struct prefix *p,
 	if (bgp_debug_zebra(p))
 		prefix2str(p, buf_prefix, sizeof(buf_prefix));
 
+	// TODO:  EOIU case ???
 	if (safi == SAFI_FLOWSPEC)
 		return bgp_pbr_update_entry(bgp, &rn->p,
 					    info, afi, safi, true);
@@ -1240,8 +1241,16 @@ void bgp_zebra_announce(struct bgp_node *rn, struct prefix *p,
 	api.type = ZEBRA_ROUTE_BGP;
 	api.safi = safi;
 	api.prefix = *p;
-	SET_FLAG(api.message, ZAPI_MESSAGE_NEXTHOP);
 
+	// TODO: check it is for EOIU
+	// TODO: popluate neccessary api data
+	// TODO: may valid_nh_count == 0 while ZEBRA_ROUTE_ADD
+	if (rn == NULL ) {
+
+		zclient_route_send(ZEBRA_ROUTE_ADD, zclient, &api);
+	}
+
+	SET_FLAG(api.message, ZAPI_MESSAGE_NEXTHOP);
 	peer = info->peer;
 
 	if (info->type == ZEBRA_ROUTE_BGP
